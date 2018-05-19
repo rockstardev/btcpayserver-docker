@@ -12,14 +12,12 @@ fi
 
 # Verify we are in right folder. If we are not, let's go in the parent folder of the current docker-compose.
 if ! git -C . rev-parse &> /dev/null || [ ! -d "Generated" ]; then
+    # Migration: Old deployment way to get to the right folder
     if [ ! -z $BTCPAY_DOCKER_COMPOSE ]; then
         cd $(dirname $BTCPAY_DOCKER_COMPOSE)
         cd ..
-        if ! git -C . rev-parse || [ ! -d "Generated" ]; then
-            echo "You must run this script inside the git repository of btcpayserver-docker"
-            return
-        fi
-    else
+    fi
+    if ! git -C . rev-parse || [ ! -d "Generated" ]; then
         echo "You must run this script inside the git repository of btcpayserver-docker"
         return
     fi
@@ -70,7 +68,7 @@ if [ "$1" != "-i" ]; then
     return
 fi
 
-######### Migrate old pregen environment to new environment ############
+######### Migration: old pregen environment to new environment ############
 if [ ! -z $BTCPAY_DOCKER_COMPOSE -a ! -z $DOWNLOAD_ROOT ]; then 
     echo "Old pregen docker deployment detected. Migrating..."
     if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
@@ -115,6 +113,11 @@ fi
 : "${BTCPAYGEN_REVERSEPROXY:=nginx}"
 : "${BTCPAYGEN_LIGHTNING:=none}"
 : "${ACME_CA_URI:=https://acme-v01.api.letsencrypt.org/directory}"
+
+if [ -z "$BTCPAY_HOST" ]; then
+    # Migration: old deployment, let's try to fetch in profile.d
+    BTCPAY_HOST=$(cat $BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')
+fi
 
 ORIGINAL_DIRECTORY=$(pwd)
 BTCPAY_BASE_DIRECTORY="$(dirname $(pwd))"
