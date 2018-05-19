@@ -125,10 +125,6 @@ export BTCPAY_ENV_FILE
 # Put the variables in /etc/profile.d when a user log interactively
 touch "/etc/profile.d/btcpay-env.sh"
 echo "
-export BTCPAY_HOST=\"$BTCPAY_HOST\"
-export LETSENCRYPT_EMAIL=\"$LETSENCRYPT_EMAIL\"
-export NBITCOIN_NETWORK=\"$NBITCOIN_NETWORK\"
-export LIGHTNING_ALIAS=\"$LIGHTNING_ALIAS\"
 export BTCPAYGEN_CRYPTO1=\"$BTCPAYGEN_CRYPTO1\"
 export BTCPAYGEN_CRYPTO2=\"$BTCPAYGEN_CRYPTO2\"
 export BTCPAYGEN_CRYPTO3=\"$BTCPAYGEN_CRYPTO3\"
@@ -139,10 +135,14 @@ export BTCPAYGEN_CRYPTO7=\"$BTCPAYGEN_CRYPTO7\"
 export BTCPAYGEN_CRYPTO8=\"$BTCPAYGEN_CRYPTO8\"
 export BTCPAYGEN_CRYPTO9=\"$BTCPAYGEN_CRYPTO9\"
 export BTCPAYGEN_LIGHTNING=\"$BTCPAYGEN_LIGHTNING\"
-export ACME_CA_URI=\"$ACME_CA_URI\"
 export BTCPAY_DOCKER_COMPOSE=\"$BTCPAY_DOCKER_COMPOSE\"
 export BTCPAY_BASE_DIRECTORY=\"$BTCPAY_BASE_DIRECTORY\"
-export BTCPAY_ENV_FILE=\"$BTCPAY_ENV_FILE\"" > /etc/profile.d/btcpay-env.sh
+export BTCPAY_ENV_FILE=\"$BTCPAY_ENV_FILE\"
+export BTCPAY_HOST=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')\"
+export LETSENCRYPT_EMAIL=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^LETSENCRYPT_EMAIL=\(.*\)$/\1/p')\"
+export NBITCOIN_NETWORK=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^NBITCOIN_NETWORK=\(.*\)$/\1/p')\"
+export LIGHTNING_ALIAS=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^LIGHTNING_ALIAS=\(.*\)$/\1/p')\"
+export ACME_CA_URI=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\1/p')\"" > /etc/profile.d/btcpay-env.sh
 chmod +x /etc/profile.d/btcpay-env.sh
 echo -e "BTCPay Server environment variables successfully saved in /etc/profile.d/btcpay-env.sh\n"
 
