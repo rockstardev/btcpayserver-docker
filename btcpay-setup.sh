@@ -12,7 +12,6 @@ fi
 
 # Verify we are in right folder. If we are not, let's go in the parent folder of the current docker-compose.
 if ! git -C . rev-parse &> /dev/null || [ ! -d "Generated" ]; then
-    # Migration: Old deployment way to get to the right folder
     if [ ! -z $BTCPAY_DOCKER_COMPOSE ]; then
         cd $(dirname $BTCPAY_DOCKER_COMPOSE)
         cd ..
@@ -71,6 +70,13 @@ fi
 ######### Migration: old pregen environment to new environment ############
 if [ ! -z $BTCPAY_DOCKER_COMPOSE -a ! -z $DOWNLOAD_ROOT ]; then 
     echo "Old pregen docker deployment detected. Migrating..."
+    # Migration: old deployment store those in BTCPAY_ENV_FILE
+    BTCPAY_HOST=$(cat $BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')
+    ACME_CA_URI=$(cat $BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\1/p')
+    NBITCOIN_NETWORK=$(cat $BTCPAY_ENV_FILE | sed -n 's/^NBITCOIN_NETWORK=\(.*\)$/\1/p')
+    LETSENCRYPT_EMAIL=$(cat $BTCPAY_ENV_FILE | sed -n 's/^LETSENCRYPT_EMAIL=\(.*\)$/\1/p')
+    LIGHTNING_ALIAS=$(cat $BTCPAY_ENV_FILE | sed -n 's/^LIGHTNING_ALIAS=\(.*\)$/\1/p')
+
     if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
         BTCPAYGEN_REVERSEPROXY='nginx'
     fi
@@ -113,11 +119,6 @@ fi
 : "${BTCPAYGEN_REVERSEPROXY:=nginx}"
 : "${BTCPAYGEN_LIGHTNING:=none}"
 : "${ACME_CA_URI:=https://acme-v01.api.letsencrypt.org/directory}"
-
-if [ -z "$BTCPAY_HOST" ]; then
-    # Migration: old deployment, let's try to fetch in profile.d
-    BTCPAY_HOST=$(cat $BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')
-fi
 
 OLD_BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
 ORIGINAL_DIRECTORY=$(pwd)
