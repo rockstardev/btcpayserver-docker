@@ -2,6 +2,7 @@
 
 docker pull btcpayserver/docker-compose-generator
 docker run -v "$(Get-Location)\Generated:/app/Generated" `
+           -v "$(Get-Location)\docker-compose-generator\docker-fragments:/app/docker-fragments" `
            -e "BTCPAYGEN_CRYPTO1=$BTCPAYGEN_CRYPTO1" `
            -e "BTCPAYGEN_CRYPTO2=$BTCPAYGEN_CRYPTO2" `
            -e "BTCPAYGEN_CRYPTO3=$BTCPAYGEN_CRYPTO3" `
