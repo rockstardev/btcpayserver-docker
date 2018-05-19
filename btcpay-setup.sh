@@ -254,7 +254,7 @@ end script" > /etc/init/start_containers.conf
 fi
 
 cd "$(dirname $BTCPAY_ENV_FILE)"
-docker-compose -f "$BTCPAY_DOCKER_COMPOSE" up -d 
+docker-compose -f "$BTCPAY_DOCKER_COMPOSE" up -d --remove-orphans
 
 cd $ORIGINAL_DIRECTORY
 
