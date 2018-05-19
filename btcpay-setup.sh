@@ -68,8 +68,10 @@ if [ "$1" != "-i" ]; then
 fi
 
 ######### Migration: old pregen environment to new environment ############
+MIGRATION="false"
 if [ ! -z $BTCPAY_DOCKER_COMPOSE -a ! -z $DOWNLOAD_ROOT ]; then 
     echo "Old pregen docker deployment detected. Migrating..."
+    MIGRATION="true"
     # Migration: old deployment store those in BTCPAY_ENV_FILE
     BTCPAY_HOST=$(cat $BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')
     ACME_CA_URI=$(cat $BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\1/p')
@@ -124,13 +126,14 @@ OLD_BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
 ORIGINAL_DIRECTORY=$(pwd)
 BTCPAY_BASE_DIRECTORY="$(dirname $(pwd))"
 
-if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
-    BTCPAY_DOCKER_COMPOSE="$(pwd)/Production/docker-compose.generated.yml"
-elif [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production-NoReverseProxy ]]; then
-    BTCPAY_DOCKER_COMPOSE="$(pwd)/Production-NoReverseProxy/docker-compose.generated.yml"
-else
-    BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
+if [[ $(MIGRATION) == 'true' ]]; then
+    if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
+        BTCPAY_DOCKER_COMPOSE="$(pwd)/Production/docker-compose.generated.yml"
+    else [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production-NoReverseProxy ]]; then
+        BTCPAY_DOCKER_COMPOSE="$(pwd)/Production-NoReverseProxy/docker-compose.generated.yml"
 fi
+
+BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
 BTCPAY_ENV_FILE="$BTCPAY_BASE_DIRECTORY/.env"
 
 echo "
