@@ -120,6 +120,7 @@ fi
 #########################################################
 
 : "${LETSENCRYPT_EMAIL:=me@example.com}"
+: "${BTCPAYGEN_MIGRATED_PREGEN:=false}"
 : "${NBITCOIN_NETWORK:=mainnet}"
 : "${BTCPAYGEN_CRYPTO1:=btc}"
 : "${BTCPAYGEN_REVERSEPROXY:=nginx}"
