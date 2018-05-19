@@ -10,14 +10,19 @@ if [[ $EUID -ne 0 ]]; then
    return
 fi
 
-if [[ ! -d "Production-NoReverseProxy" ]]; then
-   echo "You must run this script from inside the btcpayserver-docker folder" 
-   return
-fi
-
-if ! git -C . rev-parse; then
-    echo "You must run this script inside the git repository of btcpayserver-docker"
-    return
+# Verify we are in right folder. If we are not, let's go in the parent folder of the current docker-compose.
+if ! git -C . rev-parse &> /dev/null || [ ! -d "Generated" ]; then
+    if [ ! -z $BTCPAY_DOCKER_COMPOSE ]; then
+        cd $(dirname $BTCPAY_DOCKER_COMPOSE)
+        cd ..
+        if ! git -C . rev-parse || [ ! -d "Generated" ]; then
+            echo "You must run this script inside the git repository of btcpayserver-docker"
+            return
+        fi
+    else
+        echo "You must run this script inside the git repository of btcpayserver-docker"
+        return
+    fi
 fi
 
 function display_help () {
@@ -64,6 +69,45 @@ if [ "$1" != "-i" ]; then
     display_help
     return
 fi
+
+######### Migrate old pregen environment to new environment ############
+if [ ! -z $BTCPAY_DOCKER_COMPOSE -a ! -z $DOWNLOAD_ROOT ]; then 
+    echo "Old pregen docker deployment detected. Migrating..."
+    if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
+        BTCPAYGEN_REVERSEPROXY='nginx'
+    fi
+    if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production-NoReverseProxy ]]; then
+        BTCPAYGEN_REVERSEPROXY='none'
+    fi
+
+    if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.btc.yml ]]; then
+        BTCPAYGEN_CRYPTO1='btc'
+        BTCPAYGEN_LIGHTNING='none'
+    fi
+    if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.btc-clightning.yml ]]; then
+        BTCPAYGEN_CRYPTO1='btc'
+        BTCPAYGEN_LIGHTNING='clightning'
+    fi
+    if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.ltc.yml ]]; then
+        BTCPAYGEN_CRYPTO1='ltc'
+        BTCPAYGEN_LIGHTNING='none'
+    fi
+    if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.ltc-clightning.yml ]]; then
+        BTCPAYGEN_CRYPTO1='ltc'
+        BTCPAYGEN_LIGHTNING='clightning'
+    fi
+    if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.btc-ltc.yml ]]; then
+        BTCPAYGEN_CRYPTO1='btc'
+        BTCPAYGEN_CRYPTO2='ltc'
+        BTCPAYGEN_LIGHTNING='none'
+    fi
+    if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.btc-ltc-clightning.yml ]]; then
+        BTCPAYGEN_CRYPTO1='btc'
+        BTCPAYGEN_CRYPTO2='ltc'
+        BTCPAYGEN_LIGHTNING='clightning'
+    fi
+fi
+#########################################################
 
 : "${LETSENCRYPT_EMAIL:=me@example.com}"
 : "${NBITCOIN_NETWORK:=mainnet}"
@@ -118,10 +162,6 @@ if [ "$NBITCOIN_NETWORK" != "mainnet" ] && [ "$NBITCOIN_NETWORK" != "testnet" ] 
     echo "NBITCOIN_NETWORK should be equal to mainnet, testnet or regtest"
 fi
 
-export BTCPAY_DOCKER_COMPOSE
-export BTCPAY_BASE_DIRECTORY
-export BTCPAY_ENV_FILE
-
 # Put the variables in /etc/profile.d when a user log interactively
 touch "/etc/profile.d/btcpay-env.sh"
 echo "
@@ -148,6 +188,9 @@ export ACME_CA_URI=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\
 fi
 " > /etc/profile.d/btcpay-env.sh
 chmod +x /etc/profile.d/btcpay-env.sh
+
+. /etc/profile.d/btcpay-env.sh
+
 echo -e "BTCPay Server environment variables successfully saved in /etc/profile.d/btcpay-env.sh\n"
 
 if ! [ -x "$(command -v docker)" ] || ! [ -x "$(command -v docker-compose)" ]; then
