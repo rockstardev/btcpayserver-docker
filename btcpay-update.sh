@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 . /etc/profile.d/btcpay-env.sh
 
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"  
@@ -10,10 +12,8 @@ git pull --force
 for scriptname in *.sh; do
     echo "Adding symlink of $scriptname to /usr/bin"
     chmod +x $scriptname
-    if [ -e /usr/bin/$scriptname ]; then
-        rm /usr/bin/$scriptname
-    fi
-    ln -s $scriptname /usr/bin
+    rm /usr/bin/$scriptname &> /dev/null
+    ln -s "$(pwd)/$scriptname" /usr/bin
 done
 
 cd "`dirname $BTCPAY_ENV_FILE`"

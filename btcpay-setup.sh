@@ -261,9 +261,7 @@ cd $ORIGINAL_DIRECTORY
 for scriptname in *.sh; do
     echo "Adding symlink of $scriptname to /usr/bin"
     chmod +x $scriptname
-    if [ -e /usr/bin/$scriptname ]; then
-        rm /usr/bin/$scriptname
-    fi
-    ln -s $scriptname /usr/bin
+    rm /usr/bin/$scriptname &> /dev/null
+    ln -s $(pwd)/$scriptname /usr/bin
 done
 
