@@ -304,7 +304,7 @@ cd "$(dirname $BTCPAY_ENV_FILE)"
 
 if [ $OLD_BTCPAY_DOCKER_COMPOSE != $BTCPAY_DOCKER_COMPOSE ]; then
     echo "Closing old docker-compose..."
-    docker-compose -f "$BTCPAY_DOCKER_COMPOSE" down
+    docker-compose -f "$OLD_BTCPAY_DOCKER_COMPOSE" down
 fi
 
 docker-compose -f "$BTCPAY_DOCKER_COMPOSE" up -d --remove-orphans
