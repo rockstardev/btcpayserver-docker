@@ -119,7 +119,7 @@ if [ -z "$BTCPAY_HOST" ]; then
     BTCPAY_HOST=$(cat $BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')
 fi
 
-OLD_BTCPAY_DOCKER_COMPOSE=$BTCPAY_BASE_DIRECTORY
+OLD_BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
 ORIGINAL_DIRECTORY=$(pwd)
 BTCPAY_BASE_DIRECTORY="$(dirname $(pwd))"
 BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
@@ -303,7 +303,7 @@ fi
 cd "$(dirname $BTCPAY_ENV_FILE)"
 
 if [ $OLD_BTCPAY_DOCKER_COMPOSE != $BTCPAY_DOCKER_COMPOSE ]; then
-    echo "Closing old docker-compose..."
+    echo "Closing old docker-compose at $OLD_BTCPAY_DOCKER_COMPOSE..."
     docker-compose -f "$OLD_BTCPAY_DOCKER_COMPOSE" down
 fi
 
