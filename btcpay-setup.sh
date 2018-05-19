@@ -139,7 +139,7 @@ export BTCPAYGEN_REVERSEPROXY=\"$BTCPAYGEN_REVERSEPROXY\"
 export BTCPAY_DOCKER_COMPOSE=\"$BTCPAY_DOCKER_COMPOSE\"
 export BTCPAY_BASE_DIRECTORY=\"$BTCPAY_BASE_DIRECTORY\"
 export BTCPAY_ENV_FILE=\"$BTCPAY_ENV_FILE\"
-if cat \$BTCPAY_ENV_FILE 2> /dev/null; then
+if cat \$BTCPAY_ENV_FILE &> /dev/null; then
 export BTCPAY_HOST=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')\"
 export LETSENCRYPT_EMAIL=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^LETSENCRYPT_EMAIL=\(.*\)$/\1/p')\"
 export NBITCOIN_NETWORK=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^NBITCOIN_NETWORK=\(.*\)$/\1/p')\"
