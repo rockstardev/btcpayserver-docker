@@ -68,10 +68,14 @@ if [ "$1" != "-i" ]; then
 fi
 
 ######### Migration: old pregen environment to new environment ############
-MIGRATION="false"
-if [ ! -z $BTCPAY_DOCKER_COMPOSE -a ! -z $DOWNLOAD_ROOT ]; then 
+if [ ! -z $BTCPAY_DOCKER_COMPOSE ] && [ ! -z $DOWNLOAD_ROOT ] && [ -z $BTCPAYGEN_MIGRATED_PREGEN ]; then 
     echo "Old pregen docker deployment detected. Migrating..."
-    MIGRATION="true"
+    rm "$DOWNLOAD_ROOT/btcpay-restart.sh"
+    rm "$DOWNLOAD_ROOT/btcpay-update.sh"
+    rm "$DOWNLOAD_ROOT/changedomain.sh"
+    rm "$DOWNLOAD_ROOT/entrypoint.sh"
+    DOWNLOAD_ROOT=""
+    BTCPAYGEN_MIGRATED_PREGEN="true"
     # Migration: old deployment store those in BTCPAY_ENV_FILE
     BTCPAY_HOST=$(cat $BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')
     ACME_CA_URI=$(cat $BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\1/p')
@@ -126,14 +130,16 @@ OLD_BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
 ORIGINAL_DIRECTORY=$(pwd)
 BTCPAY_BASE_DIRECTORY="$(dirname $(pwd))"
 
-if [[ $(MIGRATION) == 'true' ]]; then
+if [ "$BTCPAYGEN_MIGRATED_PREGEN" == "true" ]; then
     if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
         BTCPAY_DOCKER_COMPOSE="$(pwd)/Production/docker-compose.generated.yml"
-    else [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production-NoReverseProxy ]]; then
+    elif [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production-NoReverseProxy ]]; then
         BTCPAY_DOCKER_COMPOSE="$(pwd)/Production-NoReverseProxy/docker-compose.generated.yml"
+    fi
+else # new deployments must be in Generated
+    BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
 fi
 
-BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
 BTCPAY_ENV_FILE="$BTCPAY_BASE_DIRECTORY/.env"
 
 echo "
@@ -160,6 +166,7 @@ Additional exported variables:
 BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
 BTCPAY_BASE_DIRECTORY=$BTCPAY_BASE_DIRECTORY
 BTCPAY_ENV_FILE=$BTCPAY_ENV_FILE
+BTCPAYGEN_MIGRATED_PREGEN=$BTCPAYGEN_MIGRATED_PREGEN
 ----------------------
 "
 
@@ -180,6 +187,7 @@ fi
 # Put the variables in /etc/profile.d when a user log interactively
 touch "/etc/profile.d/btcpay-env.sh"
 echo "
+export BTCPAYGEN_OLD_PREGEN=\"$BTCPAYGEN_MIGRATED_PREGEN\"
 export BTCPAYGEN_CRYPTO1=\"$BTCPAYGEN_CRYPTO1\"
 export BTCPAYGEN_CRYPTO2=\"$BTCPAYGEN_CRYPTO2\"
 export BTCPAYGEN_CRYPTO3=\"$BTCPAYGEN_CRYPTO3\"
@@ -256,6 +264,10 @@ echo -e "BTCPay Server docker-compose parameters saved in $BTCPAY_ENV_FILE\n"
 
 # Generate the docker compose in BTCPAY_DOCKER_COMPOSE
 . ./build.sh
+
+if [ "$BTCPAYGEN_MIGRATED_PREGEN" == "true" ]; then
+    cp Generated/docker-compose.generated.yml $BTCPAY_DOCKER_COMPOSE
+fi
 
 # Schedule for reboot
 if [ -x "$(command -v systemctl)" ]; then # Use systemd
