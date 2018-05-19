@@ -10,7 +10,7 @@ git pull --force
 #. ./build.sh
 
 for scriptname in *.sh; do
-    if [[ "$scriptname" == "build.sh" ] || [ "$scriptname" == "build-pregen.sh" ]] ; then
+    if [ "$scriptname" == "build.sh" -o "$scriptname" == "build-pregen.sh" ] ; then
         continue;
     fi
     echo "Adding symlink of $scriptname to /usr/bin"
@@ -20,4 +20,4 @@ for scriptname in *.sh; do
 done
 
 cd "`dirname $BTCPAY_ENV_FILE`"
-docker-compose -f $BTCPAY_DOCKER_COMPOSE up -d
+docker-compose -f $BTCPAY_DOCKER_COMPOSE up -d --remove-orphans
