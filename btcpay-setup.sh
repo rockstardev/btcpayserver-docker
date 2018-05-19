@@ -138,11 +138,14 @@ export BTCPAYGEN_LIGHTNING=\"$BTCPAYGEN_LIGHTNING\"
 export BTCPAY_DOCKER_COMPOSE=\"$BTCPAY_DOCKER_COMPOSE\"
 export BTCPAY_BASE_DIRECTORY=\"$BTCPAY_BASE_DIRECTORY\"
 export BTCPAY_ENV_FILE=\"$BTCPAY_ENV_FILE\"
+if cat \$BTCPAY_ENV_FILE 2> /dev/null; then
 export BTCPAY_HOST=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^BTCPAY_HOST=\(.*\)$/\1/p')\"
 export LETSENCRYPT_EMAIL=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^LETSENCRYPT_EMAIL=\(.*\)$/\1/p')\"
 export NBITCOIN_NETWORK=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^NBITCOIN_NETWORK=\(.*\)$/\1/p')\"
 export LIGHTNING_ALIAS=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^LIGHTNING_ALIAS=\(.*\)$/\1/p')\"
-export ACME_CA_URI=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\1/p')\"" > /etc/profile.d/btcpay-env.sh
+export ACME_CA_URI=\"\$(cat \$BTCPAY_ENV_FILE | sed -n 's/^ACME_CA_URI=\(.*\)$/\1/p')\"
+fi
+" > /etc/profile.d/btcpay-env.sh
 chmod +x /etc/profile.d/btcpay-env.sh
 echo -e "BTCPay Server environment variables successfully saved in /etc/profile.d/btcpay-env.sh\n"
 
