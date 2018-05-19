@@ -15,3 +15,7 @@ docker run -v "$(Get-Location)\Generated:/app/Generated" `
            -e "BTCPAYGEN_LIGHTNING=$BTCPAYGEN_LIGHTNING" `
            -e "BTCPAYGEN_SUBNAME=$BTCPAYGEN_SUBNAME" `
            --rm btcpayserver/docker-compose-generator
+
+If ($BTCPAYGEN_REVERSEPROXY -eq "nginx") {
+    Copy-Item ".\Production\nginx.tmpl" -Destination ".\Generated"
+}
