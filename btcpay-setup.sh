@@ -246,7 +246,7 @@ echo -e "BTCPay Server docker-compose parameters saved in $BTCPAY_ENV_FILE\n"
 . ./build.sh
 
 # Schedule for reboot
-if [ -d "/etc/systemd/system" ]; then # Use systemd
+if [ -x "$(command -v systemctl)" ]; then # Use systemd
 if [ -e "/etc/init/start_containers.conf" ]; then
     echo -e "Uninstalling upstart script /etc/init/start_containers.conf"
     rm "/etc/init/start_containers.conf"
