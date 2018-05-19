@@ -250,11 +250,11 @@ script
 end script" > /etc/init/start_containers.conf
     echo -e "BTCPay Server upstart configured in /etc/init/start_containers.conf\n"
     initctl reload-configuration
-    cd "$(dirname $BTCPAY_ENV_FILE)"
-    docker-compose -f "$BTCPAY_DOCKER_COMPOSE" up -d 
     echo "BTCPay Server started"
 fi
 
+cd "$(dirname $BTCPAY_ENV_FILE)"
+docker-compose -f "$BTCPAY_DOCKER_COMPOSE" up -d 
 
 cd $ORIGINAL_DIRECTORY
 
