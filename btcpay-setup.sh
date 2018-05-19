@@ -292,7 +292,7 @@ stop on runlevel [!2345]
 
 script
     . /etc/profile.d/btcpay-env.sh
-    cd \"`dirname \$BTCPAY_ENV_FILE`\"
+    cd \"\$(dirname \$BTCPAY_ENV_FILE)\"
     docker-compose -f \"\$BTCPAY_DOCKER_COMPOSE\" up -d
 end script" > /etc/init/start_containers.conf
     echo -e "BTCPay Server upstart configured in /etc/init/start_containers.conf\n"
