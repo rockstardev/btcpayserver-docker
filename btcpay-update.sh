@@ -7,9 +7,10 @@ set -e
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"  
 git pull --force
 
-if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Generated ]]; then
+if [[ $BTCPAY_DOCKER_COMPOSE == *docker-compose.generated.yml ]]; then
     # Generate the docker compose in BTCPAY_DOCKER_COMPOSE
     . ./build.sh
+    cp Generated/docker-compose.generated.yml $BTCPAY_DOCKER_COMPOSE
 fi
 
 for scriptname in *.sh; do

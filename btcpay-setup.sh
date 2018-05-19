@@ -123,7 +123,14 @@ fi
 OLD_BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
 ORIGINAL_DIRECTORY=$(pwd)
 BTCPAY_BASE_DIRECTORY="$(dirname $(pwd))"
-BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
+
+if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production ]]; then
+    BTCPAY_DOCKER_COMPOSE="$(pwd)/Production/docker-compose.generated.yml"
+elif [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Production-NoReverseProxy ]]; then
+    BTCPAY_DOCKER_COMPOSE="$(pwd)/Production-NoReverseProxy/docker-compose.generated.yml"
+else
+    BTCPAY_DOCKER_COMPOSE="$(pwd)/Generated/docker-compose.generated.yml"
+fi
 BTCPAY_ENV_FILE="$BTCPAY_BASE_DIRECTORY/.env"
 
 echo "
