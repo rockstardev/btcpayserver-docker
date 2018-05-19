@@ -6,8 +6,11 @@ set -e
 
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"  
 git pull --force
-# Generate the docker compose in BTCPAY_DOCKER_COMPOSE
-#. ./build.sh
+
+if [[ $(dirname $BTCPAY_DOCKER_COMPOSE) == *Generated ]]; then
+    # Generate the docker compose in BTCPAY_DOCKER_COMPOSE
+    . ./build.sh
+fi
 
 for scriptname in *.sh; do
     if [ "$scriptname" == "build.sh" -o "$scriptname" == "build-pregen.sh" ] ; then
